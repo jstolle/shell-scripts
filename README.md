@@ -1,13 +1,9 @@
-bin
-===
+Shell Scripts
+=============
 
-Add any of your own local scripts to this dir, it will be added to the path
+These are my shell scripts and what they do for me:
 
-To use, add the following to **dotsyncrc**
-
-    [files]
-    ..
-    bin:bin
-    ..
-    [endfiles]
-
+* conkeror &mdash; Fires up the Conkeror web browser
+* otf2ttf &mdash; Converts OTF files to TTF files (work in progress)
+* tmx &mdash; Starts or connects to a tmux session
+* topsum &mdash; Wrapper for top that gives cumulative memory usage to multi-process applications
