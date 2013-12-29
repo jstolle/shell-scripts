@@ -1,0 +1,20 @@
+#!/bin/sh
+
+SSH_CMD=/usr/bin/ssh
+
+REMOTE=$1
+
+while [[ -z ${REMOTE} ]];do
+    read 'REMOTE?Remote host: '
+done
+
+env | grep TMUX > /dev/null 2>&1
+IN_TMUX=$?
+
+if [ ${IN_TMUX} -eq 0 ];then
+    RUN_CMD="tmux new-window -n ${REMOTE} '${SSH_CMD} ${REMOTE}'"
+else
+    RUN_CMD="${SSH_CMD} ${REMOTE}"
+fi
+
+eval ${RUN_CMD}
