@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+import os.path, imghdr, random, sys, argparse, time
+
+def get_random_image(path='.'):
+    wpfile = ''
+    if os.path.isfile(path):
+        wpfile = '' if imghdr.what(os.path.realpath(path)) is None else os.path.realpath(path)
+    elif os.path.isdir(path):
+        wppath = os.path.realpath(path)
+    else:
+        wppath = os.getcwd()
+    
+    poss_files = os.listdir(wppath)
+    poss_index_tries = set()
+    
+    while len(wpfile) == 0:
+        indx = random.randint(-1, len(poss_files) - 1)
+    
+        if indx not in poss_index_tries:
+            poss_index_tries.add(indx)
+            wpfile = os.path.join(wppath, poss_files[indx])
+            if not os.path.isfile(wpfile) or imghdr.what(wpfile) is None:
+                wpfile = ''
+    
+        if len(wpfile) == 0 and len(poss_index_tries) == len(poss_files):
+            break
+
+    return wpfile
+
+def set_wallpaper(setcmd, bgimg, seconds):
+    sleeptime = float(seconds)
+
+    while True:
+        wp = get_random_image(bgimg)
+        cmd = ' '.join([setcmd, wp])
+        os.system(cmd)
+
+        if sleeptime == float(0):
+            break
+        else:
+            time.sleep(sleeptime)
+
+def timer_to_seconds(timestr):
+    multiplier = 1
+    ts = timestr
+    while True:
+        if ts.isnumeric():
+            t = int(ts) * multiplier
+            break
+
+        if ts.endswith('h'):
+            multiplier = 60 * 60
+        elif ts.endswith('m'):
+            multiplier = 60
+        else:
+            t = 0
+            break
+
+        ts = ts[0:len(ts) - 1]
+
+    return t
+
+def main():
+    parser = argparse.ArgumentParser(prog='wallpaper-setter', description='Set a wallpaper')
+    parser.add_argument('--timer',
+                        help='How long to sleep between issuing the background-setting command; if an integer it is seconds, appended with m it is minutes, with h it is hours (e.g., 45 means 45 seconds, 2m means 120 seconds, 4h meas 14400 seconds).  Defaults to 0 or "set and exit."',
+                        type=str,
+                        required=False,
+                        metavar='N',
+                        default='0')
+    parser.add_argument('--setter',
+                        help='The background-setting command to execute.  Defaults to "/usr/bin/feh --bg-fill."',
+                        type=str,
+                        required=False,
+                        metavar='wallpaper-command',
+                        default='/usr/bin/hsetroot -tint \'#660000\' -full')
+    parser.add_argument('--wallpaper',
+                        help='The wallpaper to set or the directory from which to select an image.  Defaults to current directory.',
+                        type=str,
+                        required=False,
+                        metavar='<dir|file>',
+                        default='/usr/share/slim/themes/capernoited/background.jpg')
+    options = parser.parse_args()
+
+    timerseconds = timer_to_seconds(options.timer)
+    set_wallpaper(options.setter, options.wallpaper, timerseconds)
+
+if __name__ == "__main__":
+    main()
