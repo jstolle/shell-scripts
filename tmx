@@ -18,29 +18,28 @@
 
 # Works because bash automatically trims by assigning to variables and by
 # passing arguments
-trim() { echo $1; }
 
+TMUX_COMMAND="/usr/bin/tmux"
+MC_COMMAND="/usr/lib/mc/mc-wrapper.sh"
 base_session="$1"
-if [[ -z "$base_session" ]]; then
+
+# Set the default session name if  one was not passed in
+if test -z "${base_session}" ; then
     base_session="Main"
 fi
 
 # Only because I often issue `ls` to this script by accident
-if [[ "$1" == "ls" ]]; then
-    tmux ls
-    exit
+if [[ "${base_session}" == "ls" ]]; then
+    ${TMUX_COMMAND} ls
+    return
 fi
 
-# This actually works without the trim() on all systems except OSX
-tmux_nb=$(trim `tmux ls | grep "^$base_session" | wc -l`)
-if [[ "$tmux_nb" == "0" ]]; then
-    echo "Launching tmux base session $base_session ..."
-    tmux new-session -s $base_session
-else
-    # Make sure we are not already in a tmux session
-    if [[ -z "$TMUX" ]]; then
-        echo "Attaching to base session $base_session ..."
-        # Attach to the session
-        tmux attach-session -t $base_session
-    fi
-fi
+test -z "${TMUX}" || return
+
+${TMUX_COMMAND} has-session -t ${base_session}
+running=$?
+
+[ "${running}" -eq "1" ] && \
+    ${TMUX_COMMAND} new-session -d -s ${base_session} ${SHELL} \; new-window -d -t ${base_session} -n MC ${MC_COMMAND}
+
+${TMUX_COMMAND} new-session -A -s ${base_session}
