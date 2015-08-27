@@ -1,0 +1,16 @@
+#!/bin/sh
+
+MPD=$(which mpd)
+MPC=$(which mpc)
+
+MPD_PROCNUM=$(/usr/bin/ps -ef | /usr/bin/grep -c '[m]pd')
+
+case "$1" in
+    stop)   [[ ${MPD_PROCNUM} -gt 0 ]] && ${MPC} stop
+            ;;
+    toggle) [[ ${MPD_PROCNUM} -gt 0 ]] || ${MPD}
+            ${MPC} toggle
+            ;;
+    *)      echo "Unknown command: " ${1} >&2
+            ;;
+esac
