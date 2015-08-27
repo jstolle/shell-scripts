@@ -1,0 +1,8 @@
+#!/bin/sh
+
+MPD=$(which mpd)
+MPC=$(which mpc)
+
+/usr/bin/ps -ef | /usr/bin/grep -q '[m]pd' || ${MPD}
+
+${MPC} toggle
